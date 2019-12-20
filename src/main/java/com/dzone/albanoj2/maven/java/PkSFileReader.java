@@ -1,15 +1,11 @@
 package com.dzone.albanoj2.maven.java;
 
-import com.opencsv.CSVReader;
-import com.opencsv.bean.ColumnPositionMappingStrategy;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
-
-import javax.activation.MimetypesFileTypeMap;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -20,7 +16,7 @@ public class PkSFileReader {
     private static Pattern fileExtnPtrn = Pattern.compile("([^\\s]+(\\.(?i)(csv))$)");
     private PKSRecordParser pKSRecordParser;
 
-    public PkSFileReader(PKSRecordParser pKSRecordParser){
+    public PkSFileReader(PKSRecordParser pKSRecordParser) {
         this.pKSRecordParser = pKSRecordParser;
 
     }
@@ -30,23 +26,23 @@ public class PkSFileReader {
         List list = new ArrayList();
         validateFileExtn(fileName);
         Charset charset = StandardCharsets.UTF_8;
-        try(
+        try (
                 InputStream inputFS = getClass()
-                     .getClassLoader().getResourceAsStream(fileName);
+                        .getClassLoader().getResourceAsStream(fileName);
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputFS,charset));
+                BufferedReader br = new BufferedReader(new InputStreamReader(inputFS, charset))
 
-        ){
-           // File inputF = new File(inputFilePath);
-           // InputStream inputFS = new FileInputStream(inputF);
+        ) {
+            // File inputF = new File(inputFilePath);
+            // InputStream inputFS = new FileInputStream(inputF);
 
-            for(String line = br.readLine(); line != null; line = br.readLine()) {
+            for (String line = br.readLine(); line != null; line = br.readLine()) {
                 list.add(line);
             }
 
 
             // skip the header of the csv
-        //    inputList = br.lines().skip(1).map(mapToItem).collect(Collectors.toList());
+            //    inputList = br.lines().skip(1).map(mapToItem).collect(Collectors.toList());
             pKSRecordParser.parseReceiveInformation(list);
         } catch (IOException e) {
 
@@ -68,15 +64,9 @@ public class PkSFileReader {
     }*/
 
 
-
-
-
-    public  boolean validateFileExtn(String userName){
+    public boolean validateFileExtn(String userName) {
         Matcher mtch = fileExtnPtrn.matcher(userName);
-        if(mtch.matches()){
-            return true;
-        }
-        return false;
+        return mtch.matches();
     }
 
 }
