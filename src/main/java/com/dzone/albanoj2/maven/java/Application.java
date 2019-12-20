@@ -5,7 +5,7 @@ public class Application {
     public static void main(String[] args) {
       //  Adder adder = new Adder();
         PkSFileReader pks = new PkSFileReader(new PKSRecordParser());
-        pks.processInputFile("message.csv5");
+        pks.processInputFile("message.csv");
     //    System.out.println("2 + 2 = " + adder.add(2, 2));
     }
 

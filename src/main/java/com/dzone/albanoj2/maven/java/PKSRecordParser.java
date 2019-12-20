@@ -1,5 +1,6 @@
 package com.dzone.albanoj2.maven.java;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,7 @@ public class PKSRecordParser {
     private static final String H_3 = "H3";
     private static final String H_4 = "H4";
 
-    private String regexPattern = "^(?<" + H_1 + ">\\d{4}-\\d{1,2}-\\d{1,2})\\s*,\\s*(?<" + H_2 + ">\\d{1,3}),\\s*(?<" + H_3 + ">\\w+\\s*\\w+),\\s*(?<" + H_4 + ">\\S+\\s*\\S+)";
+    private String regexPattern = "^(?<" + H_1 + ">\\d{4}-\\d{1,2}-\\d{1,2})\\s*,\\s*(?<" + H_2 + ">\\d{1,3}),\\s*(?<" + H_3 + ">\\w+\\s*\\w+),\\s*(?<" + H_4 + ">\\S+\\s*\\S*)";
 
 
     public Map<Integer, Map<LocalDate, PatientInformation>> parseReceiveInformation(List<String> list) {
@@ -23,12 +24,14 @@ public class PKSRecordParser {
             matcher.reset(line);
             if (matcher.find()) {
                 if (matcher.group(H_1) != null && matcher.group(H_2) != null) {
-                    if (patientRecordMap.containsKey(matcher.group(H_2))) {
-                        if (patientRecordMap.get(H_2).containsKey(H_1)) {
-                            Map<String, String> data = patientRecordMap.get(H_2).get(H_1).getPatientData();
+                    if (patientRecordMap.containsKey(Integer.parseInt(matcher.group(H_2)))) {
+                        if (patientRecordMap.get(Integer.parseInt(matcher.group(H_2))).containsKey(LocalDate.parse(matcher.group(H_1)))) {
+                            Map<String, String> data = patientRecordMap.get(Integer.parseInt(matcher.group(H_2))).get(LocalDate.parse(matcher.group(H_1))).getPatientData();
                             if (matcher.group(H_3) != null) {
                                 if (data != null) {
                                     if (data.containsKey(matcher.group(H_3))) {
+                                        data.put(matcher.group(H_3), matcher.group(H_4));
+                                    }else{
                                         data.put(matcher.group(H_3), matcher.group(H_4));
                                     }
                                 } else {
@@ -39,13 +42,13 @@ public class PKSRecordParser {
 
                         } else {
                             PatientInformation patInfo = getPatientInformation(matcher);
-                            patientRecordMap.get(matcher.group(H_2)).put(LocalDate.parse(matcher.group(H_1)), patInfo);
+                            patientRecordMap.get(Integer.parseInt(matcher.group(H_2))).put(LocalDate.parse(matcher.group(H_1)), patInfo);
 
                         }
                     } else {
                         PatientInformation patInfo = getPatientInformation(matcher);
                         Map<LocalDate, PatientInformation> patientInformationMap = new HashMap<>();
-                        patientInformationMap.put(LocalDate.parse(matcher.group(H_1)), patInfo);
+                        patientInformationMap.put(LocalDate.parse(matcher.group(H_1), DateTimeFormatter.ofPattern("yyyy-MM-dd")), patInfo);
                         patientRecordMap.put(Integer.parseInt(matcher.group(H_2)), patientInformationMap);
                     }
                 }
